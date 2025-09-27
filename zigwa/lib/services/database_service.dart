@@ -3,7 +3,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import '../models/user_model.dart';
 import '../models/trash_report_model.dart';
-import '../providers/notification_provider.dart';
+import 'notification_service.dart';
 
 class DatabaseService {
   static final DatabaseService _instance = DatabaseService._internal();
@@ -452,29 +452,109 @@ class DatabaseService {
   Map<String, dynamic> _notificationToMap(NotificationModel notification) {
     return {
       'id': notification.id,
-      'user_id': notification.userId,
+      'user_id': '', // We'll need to add userId to notifications or handle differently
       'title': notification.title,
-      'message': notification.message,
+      'message': notification.body,
       'type': notification.type.toString().split('.').last,
       'is_read': notification.isRead ? 1 : 0,
       'created_at': notification.createdAt.toIso8601String(),
-      'data': notification.data != null ? jsonEncode(notification.data) : null,
+      'data': jsonEncode(notification.data),
     };
   }
 
   NotificationModel _mapToNotification(Map<String, dynamic> map) {
     return NotificationModel(
       id: map['id'],
-      userId: map['user_id'],
       title: map['title'],
-      message: map['message'],
+      body: map['message'],
       type: NotificationType.values.firstWhere(
         (e) => e.toString().split('.').last == map['type'],
+        orElse: () => NotificationType.general,
       ),
       isRead: map['is_read'] == 1,
       createdAt: DateTime.parse(map['created_at']),
-      data: map['data'] != null ? jsonDecode(map['data']) : null,
+      data: map['data'] != null ? jsonDecode(map['data']) : {},
     );
+  }
+
+  // Additional methods for TrashService compatibility
+  Future<void> saveTrashReport(TrashReportModel report) async {
+    await insertTrashReport(report);
+  }
+
+  // Additional methods for NotificationService compatibility
+  Future<void> saveNotification(NotificationModel notification) async {
+    await insertNotification(notification);
+  }
+
+  Future<List<NotificationModel>> getNotifications() async {
+    try {
+      final db = await database;
+      final List<Map<String, dynamic>> maps = await db.query(
+        'notifications',
+        orderBy: 'created_at DESC',
+      );
+      return maps.map((map) => _mapToNotification(map)).toList();
+    } catch (e) {
+      print('Error getting notifications: $e');
+      return [];
+    }
+  }
+
+  Future<bool> deleteNotification(String notificationId) async {
+    try {
+      final db = await database;
+      final result = await db.delete(
+        'notifications',
+        where: 'id = ?',
+        whereArgs: [notificationId],
+      );
+      return result > 0;
+    } catch (e) {
+      print('Error deleting notification: $e');
+      return false;
+    }
+  }
+
+  Future<List<TrashReportModel>> getTrashReports({
+    TrashStatus? status,
+    String? userId,
+    String? collectorId,
+  }) async {
+    try {
+      if (status != null) {
+        return await getTrashReportsByStatus(status);
+      } else if (userId != null) {
+        return await getTrashReportsByUserId(userId);
+      } else if (collectorId != null) {
+        return await getTrashReportsByCollectorId(collectorId);
+      } else {
+        // Get all trash reports
+        final db = await database;
+        final List<Map<String, dynamic>> maps = await db.query(
+          'trash_reports',
+          orderBy: 'created_at DESC',
+        );
+        return maps.map((map) => _mapToTrashReport(map)).toList();
+      }
+    } catch (e) {
+      print('Error getting trash reports: $e');
+      return [];
+    }
+  }
+
+  Future<List<UserModel>> getUsers() async {
+    try {
+      final db = await database;
+      final List<Map<String, dynamic>> maps = await db.query(
+        'users',
+        where: 'is_active = 1',
+      );
+      return maps.map((map) => _mapToUser(map)).toList();
+    } catch (e) {
+      print('Error getting all users: $e');
+      return [];
+    }
   }
 
   // Close database

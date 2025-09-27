@@ -1,6 +1,5 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:uuid/uuid.dart';
-import '../providers/notification_provider.dart';
 import 'database_service.dart';
 
 class NotificationService {
@@ -301,4 +300,81 @@ class NotificationService {
         return NotificationType.general;
     }
   }
+}
+
+// Notification Model
+class NotificationModel {
+  final String id;
+  final String title;
+  final String body;
+  final Map<String, dynamic> data;
+  final DateTime createdAt;
+  final NotificationType type;
+  final bool isRead;
+
+  NotificationModel({
+    required this.id,
+    required this.title,
+    required this.body,
+    required this.data,
+    required this.createdAt,
+    required this.type,
+    this.isRead = false,
+  });
+
+  NotificationModel copyWith({
+    String? id,
+    String? title,
+    String? body,
+    Map<String, dynamic>? data,
+    DateTime? createdAt,
+    NotificationType? type,
+    bool? isRead,
+  }) {
+    return NotificationModel(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      body: body ?? this.body,
+      data: data ?? this.data,
+      createdAt: createdAt ?? this.createdAt,
+      type: type ?? this.type,
+      isRead: isRead ?? this.isRead,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'title': title,
+      'body': body,
+      'data': data,
+      'createdAt': createdAt.toIso8601String(),
+      'type': type.toString().split('.').last,
+      'isRead': isRead,
+    };
+  }
+
+  factory NotificationModel.fromJson(Map<String, dynamic> json) {
+    return NotificationModel(
+      id: json['id'],
+      title: json['title'],
+      body: json['body'],
+      data: json['data'] ?? {},
+      createdAt: DateTime.parse(json['createdAt']),
+      type: NotificationType.values.firstWhere(
+        (e) => e.toString().split('.').last == json['type'],
+        orElse: () => NotificationType.general,
+      ),
+      isRead: json['isRead'] ?? false,
+    );
+  }
+}
+
+enum NotificationType {
+  general,
+  trashReported,
+  trashAssigned,
+  trashCollected,
+  trashProcessed,
+  paymentReceived,
 }

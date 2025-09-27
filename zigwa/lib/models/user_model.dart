@@ -5,11 +5,16 @@ class UserModel {
   final String phone;
   final UserType userType;
   final String? profileImage;
+  final String? profileImageUrl;
   final DateTime createdAt;
+  final DateTime updatedAt;
   final bool isActive;
   final double? rating;
   final int? completedTasks;
   final double? totalEarnings;
+  final int totalReports;
+  final String password;
+  final String? address;
 
   UserModel({
     required this.id,
@@ -18,12 +23,17 @@ class UserModel {
     required this.phone,
     required this.userType,
     this.profileImage,
+    this.profileImageUrl,
     required this.createdAt,
+    DateTime? updatedAt,
     this.isActive = true,
-    this.rating,
-    this.completedTasks,
-    this.totalEarnings,
-  });
+    this.rating = 5.0,
+    this.completedTasks = 0,
+    this.totalEarnings = 0.0,
+    this.totalReports = 0,
+    this.password = '',
+    this.address,
+  }) : updatedAt = updatedAt ?? createdAt;
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
@@ -35,11 +45,17 @@ class UserModel {
         (type) => type.toString().split('.').last == json['userType'],
       ),
       profileImage: json['profileImage'],
-      createdAt: DateTime.parse(json['createdAt']),
-      isActive: json['isActive'] ?? true,
-      rating: json['rating']?.toDouble(),
-      completedTasks: json['completedTasks'],
-      totalEarnings: json['totalEarnings']?.toDouble(),
+      profileImageUrl: json['profileImageUrl'] ?? json['profile_image_url'],
+      createdAt: DateTime.parse(json['createdAt'] ?? json['created_at']),
+      updatedAt: json['updatedAt'] != null ? DateTime.parse(json['updatedAt']) : 
+                 json['updated_at'] != null ? DateTime.parse(json['updated_at']) : DateTime.now(),
+      isActive: json['isActive'] ?? json['is_active'] ?? true,
+      rating: json['rating']?.toDouble() ?? 5.0,
+      completedTasks: json['completedTasks'] ?? json['completed_tasks'] ?? 0,
+      totalEarnings: json['totalEarnings']?.toDouble() ?? json['total_earnings']?.toDouble() ?? 0.0,
+      totalReports: json['totalReports'] ?? json['total_reports'] ?? 0,
+      password: json['password'] ?? '',
+      address: json['address'],
     );
   }
 
@@ -51,11 +67,16 @@ class UserModel {
       'phone': phone,
       'userType': userType.toString().split('.').last,
       'profileImage': profileImage,
+      'profileImageUrl': profileImageUrl,
       'createdAt': createdAt.toIso8601String(),
+      'updatedAt': updatedAt.toIso8601String(),
       'isActive': isActive,
       'rating': rating,
       'completedTasks': completedTasks,
       'totalEarnings': totalEarnings,
+      'totalReports': totalReports,
+      'password': password,
+      'address': address,
     };
   }
 
@@ -66,11 +87,16 @@ class UserModel {
     String? phone,
     UserType? userType,
     String? profileImage,
+    String? profileImageUrl,
     DateTime? createdAt,
+    DateTime? updatedAt,
     bool? isActive,
     double? rating,
     int? completedTasks,
     double? totalEarnings,
+    int? totalReports,
+    String? password,
+    String? address,
   }) {
     return UserModel(
       id: id ?? this.id,
@@ -79,11 +105,16 @@ class UserModel {
       phone: phone ?? this.phone,
       userType: userType ?? this.userType,
       profileImage: profileImage ?? this.profileImage,
+      profileImageUrl: profileImageUrl ?? this.profileImageUrl,
       createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
       isActive: isActive ?? this.isActive,
       rating: rating ?? this.rating,
       completedTasks: completedTasks ?? this.completedTasks,
       totalEarnings: totalEarnings ?? this.totalEarnings,
+      totalReports: totalReports ?? this.totalReports,
+      password: password ?? this.password,
+      address: address ?? this.address,
     );
   }
 }
