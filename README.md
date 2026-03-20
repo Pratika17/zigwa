@@ -11,9 +11,9 @@
 
 ## 🔗 Quick Links
 
-* 💻 GitHub: https://github.com/Pratika17/zigwa
-* 📄 Presentation: *[Watch Here](https://youtu.be/njaisNvptus)
-* 🎥 Online: *[View Here](https://hackfest.info/hackfest2023)*
+* 💻 GitHub: [View Here](https://github.com/Pratika17/zigwa)
+* 📄 Presentation: [Watch Here](https://youtu.be/njaisNvptus)
+* 🎥 Online: [View Here](https://hackfest.info/hackfest2023)
 
 ---
 
@@ -155,10 +155,10 @@ lib/
 
 ---
 
-## 📊 Presentation & Demo
+## 📊 Presentation & Online
 
-* 📄 Presentation: *(Add link)*
-* 🎥 Demo: *(Add link)*
+* 📄 Presentation: [Watch Here](https://youtu.be/njaisNvptus)
+* 🎥 Online: [View Here](https://hackfest.info/hackfest2023)
 
 ---
 
